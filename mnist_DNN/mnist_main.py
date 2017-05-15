@@ -33,10 +33,9 @@ model = mnist_model()
 # 損失関数など
 def forward(data, label, model):
     y = model.predict(data)
-#    t.data = t.data.astype(np.int32)
     loss = F.softmax_cross_entropy(y, label)
     acc = F.accuracy(y, label)
-    
+
     return loss, acc
 
 
@@ -54,43 +53,48 @@ l1_W = []
 l2_W = []
 l3_W = []
 
-train_loss = []
-train_acc = []
+train_loss = np.zeros([1,1])
+train_acc = np.zeros([1,1])
 
 
 for i in range(1,n_epoch):
     print("epoch %i" %i)
-    
+
     perm = np.random.permutation(N)
-    
+
     for j in range(0, N, batch_size):
         x_batch = x_train[perm[i:i+batch_size]]
         t_batch = t_train[perm[i:i+batch_size]]
-    
+
         optimizer.zero_grads()
-        
+
         loss, acc = forward(x_batch, t_batch, model)
 #        print(loss.data)
         optimizer.update()
-    
-    
+
+
         l1_W.append(model.l1.W)
         l2_W.append(model.l2.W)
         l3_W.append(model.l3.W)
-        
-        train_loss.append(loss.data)
-        train_acc.append(acc.data)
-        
+
+    if i == 1:
+        train_loss[0] = loss.data
+        train_acc[0] = loss.data
+    train_loss = np.append(train_loss,[loss.data])
+    train_acc = np.append(train_loss,[loss.data])
+
+
+print train_loss
+print train_acc
 # for plot loss function
-x = np.linspace(-10,10,len(train_loss),np.float32)
+x = np.arange(len(train_loss))
 plt.plot(x, train_loss)
 plt.plot(x, train_acc)
 plt.show()
-    
 
-    
+
+
 #    print("Accuracy : %f" % acc.data)
 #    print("Loss : %f" % loss.data)
 
 #print(l1_W,l2_W,l3_W)
-
